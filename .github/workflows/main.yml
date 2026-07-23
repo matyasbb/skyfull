@@ -1,8 +1,5 @@
 name: Build SkyfullTools
 
-# Builds the plugin JAR automatically in the cloud (no local setup needed).
-# After it runs, open the run -> "Artifacts" -> download "SkyfullTools-jar".
-
 on:
   push:
     branches: [ main, master ]
@@ -23,11 +20,15 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn -B -q package
+        run: |
+          POM_DIR="$(dirname "$(find . -name pom.xml -not -path '*/target/*' | head -n1)")"
+          echo ">> Found project in: $POM_DIR"
+          cd "$POM_DIR"
+          mvn -B package
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: SkyfullTools-jar
-          path: target/SkyfullTools-*.jar
+          path: '**/target/SkyfullTools-*.jar'
           if-no-files-found: error
