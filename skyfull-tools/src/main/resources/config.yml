@@ -1,0 +1,54 @@
+# ==========================================================
+#  SkyfullTools  -  configuration
+#  Utility / survival enchants & items for Paper 1.21.x
+# ==========================================================
+
+# Master switches for the custom enchantments.
+enchants:
+  vein-miner:
+    enabled: true
+    # Max blocks broken per level (level 1 = 32, level 2 = 64 ...).
+    blocks-per-level: 32
+  timber:
+    enabled: true
+    max-logs: 150
+  auto-smelt:
+    enabled: true
+    # Extra XP dropped per smelted ore.
+    bonus-xp: 1
+  excavator:
+    enabled: true
+  replanter:
+    enabled: true
+  magnetic:
+    enabled: true
+    # Base pull radius in blocks; +1 per level.
+    base-radius: 4
+  soulbound:
+    enabled: true
+
+# Custom gadget items.
+items:
+  magnet:
+    # Pull radius in blocks when the magnet is switched ON.
+    radius: 6
+  green-thumb-wand:
+    # Half-size of the square bonemeal area (2 = 5x5).
+    radius: 2
+    # Bone Meal consumed from the inventory per plant grown.
+    cost-per-plant: 1
+  warp-stone:
+    warmup-seconds: 3
+    cooldown-seconds: 30
+  prospectors-compass:
+    scan-radius: 10
+    highlight-seconds: 6
+
+# How often (in ticks, 20 = 1s) the magnet pull task runs.
+magnet-task-interval: 8
+
+# Register the crafting recipes for the custom items.
+enable-recipes: true
+
+# Show a startup banner in the console.
+startup-banner: true

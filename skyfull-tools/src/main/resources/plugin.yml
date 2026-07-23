@@ -1,0 +1,21 @@
+name: SkyfullTools
+version: '${project.version}'
+main: net.skyfull.tools.SkyfullTools
+api-version: '1.21'
+authors: [SKYFULL]
+description: Custom utility & survival enchants and items for the SKYFULL server.
+website: https://skyfull.net
+
+commands:
+  skyfull:
+    description: Give custom items, apply custom enchants, and list content.
+    usage: /skyfull <give|enchant|list|reload|help>
+    aliases: [sf, skytools]
+
+permissions:
+  skyfull.admin:
+    description: Access to /skyfull give, enchant and reload.
+    default: op
+  skyfull.use:
+    description: Allowed to use custom items and enchants.
+    default: true
