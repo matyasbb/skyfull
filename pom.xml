@@ -1,91 +1,46 @@
-package net.skyfull.tools.item;
+package net.skyfull.tools;
 
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.plugin.Plugin;
 
 /**
- * Catalogue of custom "gadget" items. All of them share a single base material
- * ({@link Material#STICK}) and are distinguished by their CustomModelData value,
- * which the resource pack maps to a unique model + texture.
+ * Central holder for every {@link NamespacedKey} the plugin writes into item
+ * PersistentDataContainers, so the strings live in exactly one place.
  */
-public enum CustomItem {
+public final class Keys {
 
-    ENDER_POUCH("ender_pouch", "Ender Pouch", 990001, NamedTextColor.DARK_PURPLE,
-            new String[]{
-                    "Right-click to open your",
-                    "Ender Chest from anywhere."
-            }),
-
-    MAGNET("magnet", "Magnet", 990002, NamedTextColor.LIGHT_PURPLE,
-            new String[]{
-                    "Pulls nearby item drops to you.",
-                    "Shift + right-click to toggle."
-            }),
-
-    GREEN_THUMB_WAND("green_thumb_wand", "Green Thumb Wand", 990003, NamedTextColor.GREEN,
-            new String[]{
-                    "Right-click to bonemeal a whole",
-                    "area of crops at once.",
-                    "Uses Bone Meal from your inventory."
-            }),
-
-    WARP_STONE("warp_stone", "Warp Stone", 990004, NamedTextColor.AQUA,
-            new String[]{
-                    "Shift + right-click to set home.",
-                    "Right-click to warp home."
-            }),
-
-    PROSPECTORS_COMPASS("prospectors_compass", "Prospector's Compass", 990005, NamedTextColor.GOLD,
-            new String[]{
-                    "Right-click to scan for nearby",
-                    "ores and highlight them."
-            });
-
-    private final String id;
-    private final String displayName;
-    private final int modelData;
-    private final NamedTextColor color;
-    private final String[] description;
-
-    CustomItem(String id, String displayName, int modelData,
-               NamedTextColor color, String[] description) {
-        this.id = id;
-        this.displayName = displayName;
-        this.modelData = modelData;
-        this.color = color;
-        this.description = description;
+    private Keys() {
     }
 
-    public String id() {
-        return id;
+    // Marks the "type" of a custom gadget item (ender_pouch, magnet, ...).
+    public static NamespacedKey ITEM_TYPE;
+
+    // Toggle state (0/1) for the Magnet gadget.
+    public static NamespacedKey MAGNET_ON;
+
+    // Warp Stone home location, stored on the player's own PDC.
+    public static NamespacedKey HOME_WORLD;
+    public static NamespacedKey HOME_X;
+    public static NamespacedKey HOME_Y;
+    public static NamespacedKey HOME_Z;
+
+    // Prefix for enchant keys, e.g. skyfull:ench_vein_miner -> level (int).
+    private static final String ENCH_PREFIX = "ench_";
+
+    private static Plugin plugin;
+
+    public static void init(Plugin pl) {
+        plugin = pl;
+        ITEM_TYPE = new NamespacedKey(pl, "item_type");
+        MAGNET_ON = new NamespacedKey(pl, "magnet_on");
+        HOME_WORLD = new NamespacedKey(pl, "home_world");
+        HOME_X = new NamespacedKey(pl, "home_x");
+        HOME_Y = new NamespacedKey(pl, "home_y");
+        HOME_Z = new NamespacedKey(pl, "home_z");
     }
 
-    public String displayName() {
-        return displayName;
-    }
-
-    public int modelData() {
-        return modelData;
-    }
-
-    public NamedTextColor color() {
-        return color;
-    }
-
-    public String[] description() {
-        return description;
-    }
-
-    public Material baseMaterial() {
-        return Material.STICK;
-    }
-
-    public static CustomItem byId(String id) {
-        for (CustomItem i : values()) {
-            if (i.id.equalsIgnoreCase(id) || i.name().equalsIgnoreCase(id)) {
-                return i;
-            }
-        }
-        return null;
+    /** Key used to store the level of a given custom enchant on an item. */
+    public static NamespacedKey enchant(String enchantId) {
+        return new NamespacedKey(plugin, ENCH_PREFIX + enchantId);
     }
 }

@@ -4,63 +4,40 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.skyfull.tools.Keys;
-import net.skyfull.tools.enchant.EnchantUtil;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
-import java.util.List;
+/** Helpers for the Magnet gadget's on/off state and its display name. */
+public final class MagnetItem {
 
-/** Builds concrete {@link ItemStack}s for the custom gadget items. */
-public final class ItemFactory {
-
-    private ItemFactory() {
+    private MagnetItem() {
     }
 
-    public static ItemStack create(CustomItem type) {
-        ItemStack item = new ItemStack(type.baseMaterial());
-        ItemMeta meta = item.getItemMeta();
+    public static boolean isEnabled(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
+            return false;
+        }
+        Byte b = item.getItemMeta().getPersistentDataContainer()
+                .get(Keys.MAGNET_ON, PersistentDataType.BYTE);
+        return b != null && b == 1;
+    }
 
-        meta.displayName(Component.text(type.displayName(), type.color())
+    public static void setEnabled(ItemStack item, boolean on) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        meta.getPersistentDataContainer()
+                .set(Keys.MAGNET_ON, PersistentDataType.BYTE, (byte) (on ? 1 : 0));
+
+        Component state = on
+                ? Component.text(" (ON)", NamedTextColor.GREEN)
+                : Component.text(" (OFF)", NamedTextColor.RED);
+        meta.displayName(Component.text("Magnet", NamedTextColor.LIGHT_PURPLE)
+                .append(state)
                 .decoration(TextDecoration.ITALIC, false));
 
-        List<Component> lore = new ArrayList<>();
-        for (String line : type.description()) {
-            lore.add(EnchantUtil.gray(line));
-        }
-        // Small tag line so the item feels part of a set.
-        lore.add(Component.text("SKYFULL", NamedTextColor.DARK_GRAY)
-                .decoration(TextDecoration.ITALIC, true));
-        meta.lore(lore);
-
-        meta.getPersistentDataContainer()
-                .set(Keys.ITEM_TYPE, PersistentDataType.STRING, type.id());
-
-        meta.setCustomModelData(type.modelData());
-        meta.setEnchantmentGlintOverride(Boolean.TRUE);
-
-        try {
-            meta.setMaxStackSize(1);
-        } catch (Throwable ignored) {
-            // Older API without per-item stack size; harmless.
-        }
-
         item.setItemMeta(meta);
-
-        if (type == CustomItem.MAGNET) {
-            MagnetItem.setEnabled(item, false); // start switched off
-        }
-        return item;
-    }
-
-    /** Reads the custom item type stored on an ItemStack, or null. */
-    public static CustomItem typeOf(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) {
-            return null;
-        }
-        String id = item.getItemMeta().getPersistentDataContainer()
-                .get(Keys.ITEM_TYPE, PersistentDataType.STRING);
-        return id == null ? null : CustomItem.byId(id);
     }
 }
