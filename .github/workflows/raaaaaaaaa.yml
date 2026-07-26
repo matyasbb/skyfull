@@ -1,0 +1,51 @@
+name: Build SkyfullBlocks
+
+# Builds the plugin JAR in the cloud. Robust against stray/broken pom.xml files
+# left elsewhere in the repo: it picks the pom that actually belongs to this
+# plugin (the one containing artifactId "skyfull-blocks"), ignoring any others.
+#
+# After it runs: open the run -> "Artifacts" -> download "SkyfullBlocks-jar",
+# unzip, and drop SkyfullBlocks-1.0.0.jar into your server's /plugins folder.
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Locate the correct pom.xml
+        id: findpom
+        run: |
+          # find every pom.xml (skip build output) that belongs to this plugin
+          POM="$(grep -rls --include=pom.xml 'skyfull-blocks' . | grep -v '/target/' | head -n1)"
+          if [ -z "$POM" ]; then
+            echo "::error::No pom.xml containing artifactId 'skyfull-blocks' was found."
+            exit 1
+          fi
+          echo ">> Using project: $(dirname "$POM")"
+          echo "dir=$(dirname "$POM")" >> "$GITHUB_OUTPUT"
+
+      - name: Build with Maven
+        run: |
+          cd "${{ steps.findpom.outputs.dir }}"
+          mvn -B package
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyfullBlocks-jar
+          path: '**/target/SkyfullBlocks-*.jar'
+          if-no-files-found: error
